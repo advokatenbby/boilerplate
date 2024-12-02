@@ -3,6 +3,7 @@ use std::fs;
 use std::path::Path;
 use std::io;
 
+
 fn main() {
     let args: Vec<String> = env::args().collect();
 
@@ -15,7 +16,7 @@ fn main() {
 
     match fs::read_dir(path.clone()) {
         Ok(_) => {
-            create_folder(&args[1]);
+            create_folder(&args[1]).expect("Folder already exists!");
             copy_dir(path, &args[1]).expect("ERROR");
         },
         Err(_) => {
@@ -25,12 +26,13 @@ fn main() {
     }
 }
 
-fn create_folder(foldername: &str) {
-    if !std::path::Path::new(foldername).exists() {
-        let _ = fs::create_dir(foldername);
-    } else {
-        println!("Folder named {}, already exists", foldername);
-        std::process::exit(0)
+fn create_folder(foldername: &str) -> io::Result<()> {
+    match fs::create_dir(foldername) {
+        Ok(_) => {
+            println!("Created folder!");
+            Ok(())
+        }
+        Err(e) => Err(e),
     }
 }
 
